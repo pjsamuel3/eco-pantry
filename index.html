@@ -773,7 +773,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ image: imageDataUrl })
         });
-        if (!response.ok) throw new Error('AI service unavailable.');
+        if (!response.ok) {
+          throw new Error(`AI service returned ${response.status}: ${response.statusText || 'unknown error'}`);
+        }
         const payload = await response.json();
         if (!payload || !Array.isArray(payload.ingredients)) {
           throw new Error('Unexpected AI response shape.');
@@ -848,7 +850,7 @@
 
     els.photoInput.addEventListener('change', () => {
       clearError();
-      const file = els.photoInput.files?.[0];
+      const file = els.photoInput.files[0];
       if (!file) {
         state.imageFile = null;
         els.analyzeBtn.disabled = true;
