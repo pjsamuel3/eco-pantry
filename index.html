@@ -9,6 +9,10 @@
   <meta property="og:title" content="Eco Pantry">
   <meta property="og:description" content="Quick meals from the food you already have.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Eco Pantry">
+  <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -765,8 +769,17 @@
       return matches.length ? matches : fallbackIngredients;
     }
 
+    function getProxyUrl() {
+      if (window.ECO_PANTRY_PROXY_URL) return window.ECO_PANTRY_PROXY_URL;
+      // Auto-detect Netlify function when running on Netlify
+      if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('github.io')) {
+        return '/.netlify/functions/analyze';
+      }
+      return '';
+    }
+
     async function detectIngredients(imageDataUrl, fileName) {
-      const proxyUrl = window.ECO_PANTRY_PROXY_URL || '';
+      const proxyUrl = getProxyUrl();
       if (proxyUrl) {
         const response = await fetch(proxyUrl, {
           method: 'POST',
@@ -783,6 +796,20 @@
         return payload.ingredients;
       }
       return inferFromFileName(fileName);
+    }
+
+    async function fetchAiMeals(ingredients) {
+      const proxyUrl = getProxyUrl();
+      if (!proxyUrl) return null;
+      const response = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients })
+      });
+      if (!response.ok) throw new Error(`AI recipe service returned ${response.status}`);
+      const payload = await response.json();
+      if (!payload || !Array.isArray(payload.meals)) throw new Error('Unexpected recipe response shape.');
+      return payload.meals.map(m => ({ ...m, id: m.id || crypto.randomUUID() }));
     }
 
     function refreshGeneratedMeals() {
@@ -872,18 +899,30 @@
       addIngredientManually();
     });
 
-    els.suggestBtn.addEventListener('click', () => {
+    els.suggestBtn.addEventListener('click', async () => {
       clearError();
       if (!state.ingredients.length) {
         showError('Add or detect at least one ingredient first.');
         return;
       }
+      els.suggestBtn.disabled = true;
       showStatus('Generating practical meal ideas…');
-      state.meals = buildMealSuggestions();
+      try {
+        const aiMeals = await fetchAiMeals(state.ingredients);
+        if (aiMeals && aiMeals.length) {
+          state.meals = aiMeals;
+        } else {
+          state.meals = buildMealSuggestions();
+        }
+      } catch (err) {
+        console.warn('AI recipe fallback:', err.message);
+        state.meals = buildMealSuggestions();
+      }
       state.selectedMealId = state.meals[0]?.id || null;
       state.hasGeneratedMeals = true;
       renderMeals();
       renderRecipeView();
+      els.suggestBtn.disabled = false;
       if (state.meals.length < 3) {
         showStatus('Limited ingredients detected. Add a few more ingredients for better variety.');
       } else {
