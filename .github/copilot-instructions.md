@@ -1,11 +1,11 @@
-# Copilot Instructions — [PROJECT NAME]
+# Copilot Instructions — Eco Pantry
 
 ## What this is
-[One sentence describing the project and its audience.]
+Eco Pantry is a mobile-first prototype that helps people photograph available kitchen ingredients and get practical meal ideas quickly.
 
-Hosted on GitHub Pages at https://[username].github.io/[repo-name]/.
+Hosted on GitHub Pages at https://pjsamuel3.github.io/eco-pantry/.
 
-**Audience:** [Who uses this? How? On what device?]
+**Audience:** Teenagers, parents, students, and busy households using iPhone Safari in the kitchen.
 
 ---
 
@@ -22,30 +22,30 @@ Hosted on GitHub Pages at https://[username].github.io/[repo-name]/.
 
 ### Colour tokens
 ```css
---bg:          [VALUE]   /* page background */
---ink:         [VALUE]   /* primary text */
---accent:      [VALUE]   /* primary action colour */
---accent-bg:   [VALUE]   /* tint of accent */
---hi:          [VALUE]   /* highlight / tag colour */
---card-bg:     [VALUE]   /* card surface */
---card-border: [VALUE]   /* card border */
---muted:       [VALUE]   /* metadata, labels */
+--bg:          #f6faf7   /* page background */
+--ink:         #16221f   /* primary text */
+--accent:      #2b7a69   /* primary action colour */
+--accent-bg:   #e3f3ef   /* tint of accent */
+--hi:          #d47934   /* highlight / tag colour */
+--card-bg:     #ffffff   /* card surface */
+--card-border: #d6e3de   /* card border */
+--muted:       #5c6f68   /* metadata, labels */
 ```
 
 ### Typography
 | Role | Font | Usage |
 |------|------|-------|
-| Display | [Font] | Hero title, section headings |
-| Body | [Font] | Descriptions, notes |
-| UI | [Font] | Card titles, buttons, nav |
-| Mono | [Font] | Tags, dates, metadata |
+| Display | Fraunces | Hero title, section headings |
+| Body | Inter | Descriptions, notes |
+| UI | Inter | Card titles, buttons, nav |
+| Mono | IBM Plex Mono | Tags, dates, metadata |
 
 ### Card colour rails
 Left-edge 4px bar signals category:
-- `rail-accent`  → [category]
-- `rail-green`   → [category]
-- `rail-blue`    → [category]
-- `rail-hi`      → [category]
+- `rail-accent`  → Primary flow items
+- `rail-green`   → Positive/success indicators
+- `rail-blue`    → Informational notes
+- `rail-hi`      → Low-confidence or warning states
 
 ### Badges
 ```html
@@ -62,8 +62,8 @@ Left-edge 4px bar signals category:
 ### Section IDs
 | ID | Description |
 |----|-------------|
-| `#section-one` | [What this section covers] |
-| `#section-two` | [What this section covers] |
+| `#photo-title` | Photo upload/capture and processing states |
+| `#ingredient-title` | Editable detected ingredients and manual additions |
 
 ### Adding a new card
 ```html
@@ -89,9 +89,9 @@ Left-edge 4px bar signals category:
 ### Section chapter headers
 Each section opens with a full-width photo header. Add a class to `.chapter-header`:
 ```css
-.ch-section-one {
-  background-color: #1A2030; /* fallback — always keep */
-  background-image: url('https://images.unsplash.com/photo-{ID}?auto=format&fit=crop&w=1400&q=80');
+.hero {
+  background-color: var(--accent); /* fallback — always keep */
+  background-image: linear-gradient(rgba(22,34,31,.62), rgba(22,34,31,.62)), url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1400&q=80');
 }
 ```
 
